@@ -1,12 +1,13 @@
+import { v4 as uuidv4 } from "uuid";
 import { user } from "../models/user.js";
+import { emailService } from "../services/email.service.js";
 
 const register = async (req, res) => {
   const { email, password } = req.body;
+  const newUser = await user.create({ email, password });
+  const token = uuidv4();
 
-  const newUser = await user.create({
-    email,
-    password,
-  });
+  await emailService.sendActivationEmail(email, token);
 
   res.send(newUser);
 };

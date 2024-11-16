@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import "dotenv/config";
+import { User } from "../models/user.js";
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -10,7 +11,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export function sendEmail({ to, subject, html }) {
+function sendEmail({ to, subject, html }) {
   transporter.sendMail({
     to,
     subject,
@@ -32,7 +33,14 @@ function sendActivationEmail(to, token) {
   });
 }
 
+async function isEmailExist(email) {
+  const user = await User.findOne({ where: { email } });
+
+  return !!user;
+}
+
 export const emailService = {
   sendActivationEmail,
   sendEmail,
+  isEmailExist,
 };

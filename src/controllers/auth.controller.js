@@ -6,11 +6,19 @@ const register = async (req, res) => {
   const { email, password } = req.body;
   const activationToken = uuidv4();
 
+  // create new user only if there is no user with the same email
+  const user = await emailService.isEmailExist(email);
+
+  if (user) {
+    res.sendStatus(409);
+    return;
+  }
+
   const newUser = await User.create({ email, password, activationToken });
 
   await emailService.sendActivationEmail(email, activationToken);
 
-  res.send(newUser);
+  res.sendStatus(201);
 };
 
 const activate = async (req, res) => {
@@ -28,7 +36,26 @@ const activate = async (req, res) => {
   res.send(user);
 };
 
+const emailVerification = async (req, res) => {
+  const { email } = req.body || null;
+
+  if (!email) {
+    res.sendStatus(400);
+    return;
+  }
+
+  const user = await emailService.isEmailExist(email);
+
+  if (!user) {
+    res.sendStatus(404);
+    return;
+  }
+
+  res.sendStatus(200);
+};
+
 export const authController = {
   register,
   activate,
+  emailVerification,
 };

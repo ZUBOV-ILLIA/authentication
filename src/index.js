@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import "dotenv/config";
 import { authRouter } from "./routes/auth.route.js";
+import { userRouter } from "./routes/user.route.js";
 
 const PORT = process.env.PORT || 3007;
 const app = express();
@@ -15,6 +16,7 @@ app.use(
   })
 );
 app.use(authRouter);
+app.use("/users", userRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello World!");

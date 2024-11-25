@@ -4,9 +4,41 @@ import { emailService } from "../services/email.service.js";
 import { userService } from "../services/user.service.js";
 import { jwtService } from "../services/jwt.service.js";
 
+function validateEmail(value) {
+  if (!value) {
+    return "Email is required";
+  }
+
+  const emailPattern = /^[\w.+-]+@([\w-]+\.){1,3}[\w-]{2,}$/;
+
+  if (!emailPattern.test(value)) {
+    return "Email is not valid";
+  }
+}
+
+function validatePassword(value) {
+  if (!value) {
+    return "Password is required";
+  }
+
+  if (value.length < 8) {
+    return "At least 8 characters";
+  }
+}
+
 const register = async (req, res) => {
   const { email, password } = req.body;
   const activationToken = uuidv4();
+
+  const errors = {
+    email: validateEmail(email),
+    password: validatePassword(password),
+  };
+
+  if (errors.email || errors.password) {
+    res.status(400).send(errors);
+    return;
+  }
 
   // create new user only if there is no user with the same email
   const user = await emailService.isEmailExist(email);
